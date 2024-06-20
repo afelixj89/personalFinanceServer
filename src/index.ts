@@ -1,6 +1,6 @@
 import express, { Express } from "express";
 import mongoose from "mongoose";
-import financialRecordRouter from "./routes/financial-records";
+import financialRecordRouter from "./routes/financialRecordRoutes";
 import cors from "cors";
 
 const app: Express = express();
