@@ -1,5 +1,8 @@
+import 'reflect-metadata';
 import { Sequelize } from 'sequelize-typescript';
+import dotenv from 'dotenv';
 import { FinancialRecord } from './models/FinancialRecord';
+
 
 // Load environment variables from .env file
 import { config } from 'dotenv';
@@ -12,7 +15,17 @@ const sequelize = new Sequelize({
   password: process.env.DB_PASS,
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT) || 3306,
+
   models: [FinancialRecord],
 });
 
 export default sequelize;
+
+
+
+
+
+
+
+
+
