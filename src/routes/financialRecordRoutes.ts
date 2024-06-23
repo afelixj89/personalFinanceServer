@@ -3,12 +3,12 @@ import { FinancialRecord } from '../models/FinancialRecord';
 
 const router = express.Router();
 
-router.get("/getAllByUserId/:userId", async (req: Request, res: Response) => {
+router.get('/getAllByUserId/:userId', async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
-    const records = await FinancialRecord.findAll({ where: { userId: userId } });
+    const records = await FinancialRecord.findAll({ where: { userId } });
     if (records.length === 0) {
-      return res.status(404).send("No records found for the user.");
+      return res.status(404).send('No records found for the user.');
     }
     res.status(200).send(records);
   } catch (err) {
@@ -16,7 +16,7 @@ router.get("/getAllByUserId/:userId", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/", async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const newRecordBody = req.body;
     const newRecord = await FinancialRecord.create(newRecordBody);
@@ -26,27 +26,27 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-router.put("/:id", async (req: Request, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     const newRecordBody = req.body;
-    const [, updatedRecord] = await FinancialRecord.update(newRecordBody, {
-      where: { id: id },
+    const record = await FinancialRecord.update(newRecordBody, {
+      where: { id },
       returning: true,
     });
-    if (!updatedRecord) return res.status(404).send();
-    res.status(200).send(updatedRecord[0]);
+    if (!record[0]) return res.status(404).send();
+    res.status(200).send(record[1][0]);
   } catch (err) {
     res.status(500).send(err);
   }
 });
 
-router.delete("/:id", async (req: Request, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    const deletedRecord = await FinancialRecord.destroy({ where: { id: id } });
-    if (!deletedRecord) return res.status(404).send();
-    res.status(200).send(deletedRecord);
+    const result = await FinancialRecord.destroy({ where: { id } });
+    if (!result) return res.status(404).send();
+    res.status(200).send({ message: 'Record deleted successfully' });
   } catch (err) {
     res.status(500).send(err);
   }
