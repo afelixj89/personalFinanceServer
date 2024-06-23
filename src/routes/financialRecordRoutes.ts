@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { FinancialRecord } from '../models/FinancialRecord';
+import { chatWithGPT } from '../controllers/financialRecordController'
 
 const router = express.Router();
 
@@ -51,5 +52,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.status(500).send(err);
   }
 });
+
+router.post('/chat', chatWithGPT);
 
 export default router;

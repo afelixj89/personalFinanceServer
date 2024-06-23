@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
 import { FinancialRecord } from './models/FinancialRecord';
 
-// Load environment variables from .env file
+
 import { config } from 'dotenv';
 config();
 
