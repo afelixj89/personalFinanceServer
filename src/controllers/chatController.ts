@@ -2,10 +2,15 @@ import { Request, Response } from 'express';
 import OpenAI from 'openai';
 import { FinancialRecord } from '../models/FinancialRecord';
 
+// Assuming you have your API key set in an environment variable
+const apiKey = process.env.OPENAI_API_KEY || '';
+
+// Create an OpenAI instance
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: apiKey,
 });
 
+// Example controller method using OpenAI
 export const chatWithGPT = async (req: Request, res: Response) => {
   try {
     const { message } = req.body;
@@ -23,7 +28,8 @@ export const chatWithGPT = async (req: Request, res: Response) => {
 
       // Example logic to create a financial record from the assistant message
       if (assistantMessage && assistantMessage.includes('create record')) {
-        const recordData = {
+        // Define recordData with the correct type assertion
+        const recordData: Partial<FinancialRecord> = {
           userId: 'exampleUserId',  // Replace with actual user ID or extract from message
           date: new Date(),
           description: 'Sample description',
@@ -32,8 +38,8 @@ export const chatWithGPT = async (req: Request, res: Response) => {
           paymentMethod: 'Sample payment method',
         };
 
-        // Create a new FinancialRecord using Sequelize's create method
-        const record = await FinancialRecord.create(recordData);
+        // Use FinancialRecord.create to directly create the instance
+        const record = await FinancialRecord.create(recordData as FinancialRecord);
 
         res.json({ message: 'Record created successfully' });
       } else {
