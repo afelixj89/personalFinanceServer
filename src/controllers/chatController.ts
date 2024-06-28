@@ -1,15 +1,14 @@
 import { Request, Response } from 'express';
-import OpenAI from 'openai';
+import axios from 'axios';
 import { FinancialRecord } from '../models/FinancialRecord';
 import rateLimit from 'express-rate-limit';
 
-// Assuming you have your API key set in an environment variable
-const apiKey = process.env.OPENAI_API_KEY || '';
+// Load environment variables from .env file
+import 'dotenv/config';
 
-// Create an OpenAI instance
-const openai = new OpenAI({
-  apiKey: apiKey,
-});
+// Assuming you have your API key set in an environment variable
+const apiKey = process.env.GEMINI_API_KEY || '';
+const apiEndpoint = process.env.GEMINI_API_ENDPOINT || '';
 
 // Set up rate limiting
 const limiter = rateLimit({
@@ -18,21 +17,26 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.'
 });
 
-// Example controller method using OpenAI
+// Example controller method using Gemini API
 export const chatWithGPT = async (req: Request, res: Response) => {
   try {
     const { message } = req.body;
 
-    // Make a request to OpenAI using the correct method
-    const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+    // Make a request to the Gemini API
+    const response = await axios.post(apiEndpoint, {
+      model: 'gemini-free-model', // Replace with the appropriate model identifier
       messages: [{ role: 'user', content: message }],
+    }, {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
     });
 
     // Check if response is valid and has choices
-    if (response && response.choices && response.choices.length > 0) {
+    if (response.data && response.data.choices && response.data.choices.length > 0) {
       // Extract the assistant's response from the API response
-      const assistantMessage = response.choices[0]?.message?.content;
+      const assistantMessage = response.data.choices[0]?.message?.content;
 
       // Example logic to create a financial record from the assistant message
       if (assistantMessage && assistantMessage.includes('create record')) {
@@ -54,16 +58,16 @@ export const chatWithGPT = async (req: Request, res: Response) => {
         res.json({ message: assistantMessage });
       }
     } else {
-      res.status(500).json({ error: 'Invalid response from OpenAI API' });
+      res.status(500).json({ error: 'Invalid response from Gemini API' });
     }
   } catch (error) {
-    console.error('Error communicating with OpenAI:', error);
-    if (error instanceof OpenAI.APIError && error.status === 429) {
+    console.error('Error communicating with Gemini:', error);
+    if (axios.isAxiosError(error) && error.response?.status === 429) {
       res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
-    } else if (error instanceof OpenAI.APIError && error.status === 404) {
+    } else if (axios.isAxiosError(error) && error.response?.status === 404) {
       res.status(404).json({ error: 'Model not found or access denied.' });
     } else {
-      res.status(500).json({ error: 'Failed to communicate with OpenAI' });
+      res.status(500).json({ error: 'Failed to communicate with Gemini' });
     }
   }
 };

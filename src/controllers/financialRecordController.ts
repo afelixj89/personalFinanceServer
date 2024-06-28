@@ -1,31 +1,58 @@
-import { Request, Response } from "express";
-import OpenAI from "openai";
-import { FinancialRecord } from "../models/FinancialRecord";
+import express, { Request, Response } from 'express';
+import { FinancialRecord } from '../models/FinancialRecord';
+import { chatWithGPT } from './chatController'; // Import the chatWithGPT method
 
-const apiKey = process.env.OPENAI_API_KEY || "";
+const router = express.Router();
 
-const openai = new OpenAI({
-  apiKey: apiKey,
+router.get('/getAllByUserId/:userId', async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const records = await FinancialRecord.findAll({ where: { userId } });
+    if (records.length === 0) {
+      return res.status(404).send('No records found for the user.');
+    }
+    res.status(200).send(records);
+  } catch (err) {
+    res.status(500).send(err);
+  }
 });
 
-export const chatWithGPT = async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
-    const { message } = req.body;
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: message }],
-    });
-
-    if (response && response.choices && response.choices.length > 0) {
-      const assistantMessage = response.choices[0]?.message?.content;
-
-      res.json({ message: assistantMessage });
-    } else {
-      res.status(500).json({ error: "Invalid response from OpenAI API" });
-    }
-  } catch (error) {
-    console.error("Error communicating with OpenAI:", error);
-    res.status(500).json({ error: "Failed to communicate with OpenAI" });
+    const newRecordBody = req.body;
+    const newRecord = await FinancialRecord.create(newRecordBody);
+    res.status(200).send(newRecord);
+  } catch (err) {
+    res.status(500).send(err);
   }
-};
+});
+
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const newRecordBody = req.body;
+    const record = await FinancialRecord.update(newRecordBody, {
+      where: { id },
+      returning: true,
+    });
+    if (!record[0]) return res.status(404).send();
+    res.status(200).send(record[1][0]);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const result = await FinancialRecord.destroy({ where: { id } });
+    if (!result) return res.status(404).send();
+    res.status(200).send({ message: 'Record deleted successfully' });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+router.post('/chat', chatWithGPT);
+
+export default router;
