@@ -13,7 +13,7 @@ export const chatWithGPT = async (req: Request, res: Response) => {
     const { message } = req.body;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: message }],
     });
 
