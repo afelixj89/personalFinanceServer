@@ -3,6 +3,6 @@ import { chatWithGPT } from '../controllers/chatController'; // Ensure this path
 
 const router = Router();
 
-router.post('/', chatWithGPT);
+router.post('/chat', chatWithGPT);
 
 export default router;
