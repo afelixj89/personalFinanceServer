@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { FinancialRecord } from '../models/FinancialRecord';
-import { chatWithGPT } from '../controllers/financialRecordController'
+import { chatWithGPT } from '../controllers/chatController' 
 
 const router = express.Router();
 
