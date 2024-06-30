@@ -54,8 +54,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/chat', chatWithGPT);
-
 
 router.get('/:id', async (req: Request, res: Response) => {
   try {

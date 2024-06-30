@@ -4,6 +4,7 @@ import { chatWithGPT } from './chatController';
 
 const router = express.Router();
 
+// Get all financial records by user ID
 router.get('/getAllByUserId/:userId', async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -17,6 +18,7 @@ router.get('/getAllByUserId/:userId', async (req: Request, res: Response) => {
   }
 });
 
+// Create a new financial record
 router.post('/', async (req: Request, res: Response) => {
   try {
     const newRecordBody = req.body;
@@ -27,21 +29,24 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
+// Update a financial record by ID
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     const newRecordBody = req.body;
-    const record = await FinancialRecord.update(newRecordBody, {
+    const [updated] = await FinancialRecord.update(newRecordBody, {
       where: { id },
       returning: true,
     });
-    if (!record[0]) return res.status(404).send();
-    res.status(200).send(record[1][0]);
+    if (!updated) return res.status(404).send();
+    const updatedRecord = await FinancialRecord.findOne({ where: { id } });
+    res.status(200).send(updatedRecord);
   } catch (err) {
     res.status(500).send(err);
   }
 });
 
+// Delete a financial record by ID
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
@@ -53,6 +58,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 });
 
+// Chat with GPT endpoint
 router.post('/chat', chatWithGPT);
 
 export default router;

@@ -2,25 +2,29 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import { FinancialRecord } from '../models/FinancialRecord';
 import rateLimit from 'express-rate-limit';
-
-
 import 'dotenv/config';
 
-
-const apiKey = process.env.GEMINI_API_KEY || '';
-const apiEndpoint = process.env.GEMINI_API_ENDPOINT || '';
-
+const apiKey = process.env.GEMINI_API_KEY as string;
+const apiEndpoint = process.env.GEMINI_API_ENDPOINT as string;
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 15 * 60 * 1000, 
   max: 100, 
   message: 'Too many requests from this IP, please try again later.'
 });
 
-
 export const chatWithGPT = async (req: Request, res: Response) => {
+  console.log('Received POST request at /chat');
   try {
     const { message } = req.body;
+
+    if (!apiEndpoint) {
+      throw new Error('GEMINI_API_ENDPOINT is not defined');
+    }
+
+    console.log('API Endpoint:', apiEndpoint);
+    console.log('API Key:', apiKey);
+    console.log('Message:', message);
 
     const response = await axios.post(apiEndpoint, {
       model: 'gemini-free-model',
@@ -32,14 +36,12 @@ export const chatWithGPT = async (req: Request, res: Response) => {
       },
     });
 
+    console.log('Response from Gemini API:', response.data);
 
     if (response.data && response.data.choices && response.data.choices.length > 0) {
-     
       const assistantMessage = response.data.choices[0]?.message?.content;
 
-   
       if (assistantMessage && assistantMessage.includes('create record')) {
- 
         const recordData: Partial<FinancialRecord> = {
           userId: 'exampleUserId',  
           date: new Date(),
