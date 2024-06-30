@@ -1,4 +1,6 @@
+import 'reflect-metadata';
 import { Sequelize } from 'sequelize-typescript';
+import dotenv from 'dotenv';
 import { FinancialRecord } from './models/FinancialRecord';
 
 
@@ -16,3 +18,12 @@ const sequelize = new Sequelize({
 });
 
 export default sequelize;
+
+
+
+
+
+
+
+
+

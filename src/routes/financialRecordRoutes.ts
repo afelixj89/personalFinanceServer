@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { FinancialRecord } from '../models/FinancialRecord';
-import { chatWithGPT } from '../controllers/chatController' 
+import { chatWithGPT } from '../controllers/chatController'; // Import the chatWithGPT method
+
 
 const router = express.Router();
 
@@ -54,5 +55,19 @@ router.delete('/:id', async (req: Request, res: Response) => {
 });
 
 router.post('/chat', chatWithGPT);
+
+
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const record = await FinancialRecord.findByPk(id);
+    if (!record) {
+      return res.status(404).send('Record not found.');
+    }
+    res.status(200).send(record);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 export default router;
