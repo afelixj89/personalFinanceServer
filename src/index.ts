@@ -1,3 +1,4 @@
+
 import "reflect-metadata";
 import express, { Express } from "express";
 import cors from "cors";
@@ -29,7 +30,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/financial-record", financialRecordRouter);
-app.use("/chat", chatRouter);
+app.use("/chat", chatRouter); 
 
 app.listen(port, () => {
   console.log(`Server Running on Port ${port}`);
